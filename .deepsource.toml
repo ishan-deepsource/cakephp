@@ -2,7 +2,11 @@ version = 1
 
 test_patterns = ["tests/**"]
 
-exclude_patterns = ["vendor/**"]
+exclude_patterns = [
+  "vendor/**",
+  "tmp/**",
+  "**/cache/**"
+]
 
 [[analyzers]]
 name = "php"
