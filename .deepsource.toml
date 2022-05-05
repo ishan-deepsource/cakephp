@@ -2,11 +2,7 @@ version = 1
 
 test_patterns = ["tests/**"]
 
-exclude_patterns = [
-  "vendor/**",
-  "tmp/**",
-  "**/cache/**"
-]
+exclude_patterns = ["vendor/**"]
 
 [[analyzers]]
 name = "php"
@@ -18,8 +14,4 @@ enabled = true
 
 [[analyzers]]
 name = "test-coverage"
-enabled = true
-
-[[transformers]]
-name = "php-cs-fixer"
 enabled = true
