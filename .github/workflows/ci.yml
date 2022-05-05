@@ -115,6 +115,7 @@ jobs:
       env:
         REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
         MEMCACHED_PORT: ${{ job.services.memcached.ports['11211'] }}
+        DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
       run: |
         if [[ ${{ matrix.db-type }} == 'sqlite' ]]; then export DB_URL='sqlite:///:memory:'; fi
         if [[ ${{ matrix.db-type }} == 'mysql' && ${{ matrix.php-version }} == '7.2' ]]; then export DB_URL='mysql://root:root@127.0.0.1/cakephp'; fi
@@ -124,8 +125,10 @@ jobs:
 
         if [[ ${{ matrix.php-version }} == '8.0' ]]; then
           export CODECOVERAGE=1
-          vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
+          phpdbg -qrr vendor/bin/phpunit --verbose --coverage-cobertura coverage.xml
           CAKE_TEST_AUTOQUOTE=1 vendor/bin/phpunit --verbose --testsuite=database
+          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --analyzer test-coverage --key php --value-file ./coverage.xml
         else
           vendor/bin/phpunit
           CAKE_TEST_AUTOQUOTE=1 vendor/bin/phpunit --testsuite=database
@@ -134,10 +137,6 @@ jobs:
     - name: Prefer lowest check
       if: matrix.prefer-lowest == 'prefer-lowest'
       run: composer require --dev dereuromark/composer-prefer-lowest && vendor/bin/validate-prefer-lowest -m
-
-    - name: Submit code coverage
-      if: matrix.php-version == '8.0'
-      uses: codecov/codecov-action@v3
 
   testsuite-windows:
     runs-on: windows-2019
